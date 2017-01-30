@@ -56,7 +56,7 @@ class Picture(object):
 
         target_size = self.chan_pic.size
         real_size = os.path.getsize(self.path) >> 10
-        logger.inhttps://github.com/fbjorn/ylyl-botfo('Size (target/real): %s / %s' % (target_size, real_size))
+        logger.info('Size (target/real): %s / %s' % (target_size, real_size))
 
         self.save_to_db()
 

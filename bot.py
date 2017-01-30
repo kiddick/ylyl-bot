@@ -29,11 +29,13 @@ if __name__ == '__main__':
 
     bot = Bot(conf.bot_token)
     agregator = Agregator('b')
-    for pic in agregator:
-        logger.info('Sending %s' % pic.name)
-        bot.sendPhoto(
-            chat_id=conf.chat_id,
-            photo=open(pic.path, 'rb'),
-            caption=pic.caption
-        )
-        time.sleep(3)
+    while True:
+        for pic in agregator:
+            logger.info('Sending %s' % pic.name)
+            bot.sendPhoto(
+                chat_id=conf.chat_id,
+                photo=open(pic.path, 'rb'),
+                caption=pic.caption
+            )
+            time.sleep(3)
+        time.sleep(conf.sleep_interval)

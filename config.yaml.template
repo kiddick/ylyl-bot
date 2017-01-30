@@ -1,0 +1,7 @@
+board: 'b'
+pics_base_dir: 'pics'
+chat_id: 1337
+bot_token: 'tokentoken'
+search_tags:
+  - 'засмеялся'
+  - 'проиграл'

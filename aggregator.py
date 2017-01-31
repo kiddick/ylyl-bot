@@ -103,15 +103,15 @@ class Agregator(object):
 
 
 def get_matched_threads(board):
-    result = []
+    result = set()
 
     for num, op_text in chan.get_preview(board).items():
         for tag in conf.search_tags:
             if tag in op_text.lower():
-                result.append(int(num))
+                result.add(int(num))
                 logger.info('Thread is matched: %s - %s' % (num, op_text))
 
-    return result
+    return list(result)
 
 
 def purify_message(text):

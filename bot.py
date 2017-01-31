@@ -14,6 +14,9 @@ from telegram import Bot
 
 from aggregator import Config, Agregator
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('bot')
 conf = Config()
 
@@ -30,6 +33,7 @@ if __name__ == '__main__':
     bot = Bot(conf.bot_token)
     agregator = Agregator('b')
     while True:
+        logger.info('Start aggregation')
         for pic in agregator:
             logger.info('Sending %s' % pic.name)
             bot.sendPhoto(
@@ -38,4 +42,6 @@ if __name__ == '__main__':
                 caption=pic.caption
             )
             time.sleep(3)
+
+        logger.info('Finish aggregation')
         time.sleep(conf.sleep_interval)

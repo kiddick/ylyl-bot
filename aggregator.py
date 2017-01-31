@@ -9,7 +9,9 @@ import models
 
 pics_base_dir = 'pics'
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('agregator')
 
 
@@ -106,6 +108,6 @@ def get_matched_threads(board):
         for tag in conf.search_tags:
             if tag in op_text.lower():
                 result.append(int(num))
+                logger.info('Thread is matched: %s - %s' % (num, op_text))
 
-    logger.info('Threads matched: %s', result)
     return result

@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 import yaml
 from chan import api as chan
@@ -97,7 +98,7 @@ class Agregator(object):
                         continue
 
                     picture.download(session)
-                    picture.caption = post.message
+                    picture.caption = purify_message(post.message)
                     yield picture
 
 
@@ -111,3 +112,18 @@ def get_matched_threads(board):
                 logger.info('Thread is matched: %s - %s' % (num, op_text))
 
     return result
+
+
+def purify_message(text):
+    rules = [
+        (r'<a.*?</a>', ''),
+        (r'<br>', ' '),
+        (r'<span.*?>', ''),
+        (r'</span>', '')
+    ]
+
+    for rule in rules:
+        pattern, repl = rule
+        text = re.sub(pattern, repl, text)
+
+    return text

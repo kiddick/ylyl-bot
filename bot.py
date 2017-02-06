@@ -5,6 +5,8 @@ from collections import namedtuple
 from threading import Thread
 import time
 import re
+from concurrent import futures
+
 from telegram import InlineKeyboardButton as Button
 from telegram import InlineKeyboardMarkup, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, \
@@ -24,24 +26,31 @@ conf = Config()
 def q(b, u):
     print(u.message.chat_id)
 
+
+def worker(entry):
+    agregator = Agregator(entry)
+    bot = Bot(entry.bot_token)
+
+    while True:
+        logger.info('%s: Start aggregation' % entry.name)
+
+        for pic in agregator:
+            logger.info('%s: Sending %s' % (entry.name, pic.url))
+            bot.sendPhoto(
+                chat_id=entry.chat_id,
+                photo=pic.url,
+                caption=pic.caption
+            )
+            time.sleep(entry.sending_interval)
+
+        logger.info('%s: Finish aggregation' % entry.name)
+        time.sleep(entry.sleep_interval)
+
 if __name__ == '__main__':
     # updater = Updater(conf.bot_token)
     # updater.dispatcher.add_handler(CommandHandler('q', q))
     # updater.start_polling()
     # updater.idle()
-
-    bot = Bot(conf.bot_token)
-    agregator = Agregator('b')
-    while True:
-        logger.info('Start aggregation')
-        for pic in agregator:
-            logger.info('Sending %s' % pic.url)
-            bot.sendPhoto(
-                chat_id=conf.chat_id,
-                photo=pic.url,
-                caption=pic.caption
-            )
-            time.sleep(conf.sending_interval)
-
-        logger.info('Finish aggregation')
-        time.sleep(conf.sleep_interval)
+    with futures.ThreadPoolExecutor(max_workers=len(conf.entries)) as ex:
+        for entry in conf.entries:
+            ex.submit(worker, entry)

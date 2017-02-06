@@ -14,27 +14,54 @@ logging.basicConfig(
 logger = logging.getLogger('agregator')
 
 
+class ConfigEntry(object):
+
+    def __init__(self, name, entry_dict):
+        for k, v in entry_dict.items():
+            setattr(self, k, v)
+        self.name = name
+
+
 class Config(object):
 
     def __init__(self):
-        cwd = os.path.dirname(os.path.abspath(__file__))
+        self.entries = []
 
+        cwd = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(cwd, 'config.yaml')) as stream:
             config = yaml.load(stream)
 
         for k, v in config.items():
-            setattr(self, k, v)
+            if k != 'entries':
+                setattr(self, k, v)
+            else:
+                for name, content in v.items():
+                    self.entries.append(ConfigEntry(name, content))
+
 
 conf = Config()
 
 
 class Agregator(object):
 
-    def __init__(self, board):
-        self.board = board
+    def __init__(self, conf_entry):
+        self.name = conf_entry.name
+        self.board = conf_entry.board
+        self.search_tags = conf_entry.search_tags
+
+    def get_matched_threads(self):
+        result = set()
+
+        for num, op_text in chan.get_preview(self.board).items():
+            for tag in self.search_tags:
+                if tag in op_text.lower():
+                    result.add(int(num))
+                    logger.info('Thread is matched: %s - %s' % (num, op_text))
+
+        return list(result)
 
     def search(self):
-        matched_threads = get_matched_threads(self.board)
+        matched_threads = self.get_matched_threads()
 
         models.cleanup(matched_threads)
 
@@ -59,18 +86,6 @@ class Agregator(object):
                         caption=purify_message(post.message))
 
                     yield picture
-
-
-def get_matched_threads(board):
-    result = set()
-
-    for num, op_text in chan.get_preview(board).items():
-        for tag in conf.search_tags:
-            if tag in op_text.lower():
-                result.add(int(num))
-                logger.info('Thread is matched: %s - %s' % (num, op_text))
-
-    return list(result)
 
 
 def purify_message(text):

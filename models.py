@@ -30,13 +30,12 @@ class Thread(BaseModel):
 class Picture(BaseModel):
 
     url = CharField(default='')
-    name = CharField(default='')
-    path = CharField(default='')
+    caption = CharField(default='')
     thread = IntegerField(default=0)
 
     @classmethod
-    def check_existance(cls, name):
-        return len(Picture.select().where(Picture.name == name)) > 0
+    def check_existance(cls, url):
+        return len(Picture.select().where(Picture.url == url)) > 0
 
 
 def cleanup(thread_nums):
@@ -46,14 +45,6 @@ def cleanup(thread_nums):
 
     logger.info('Performing cleanup')
     Thread.delete().where(Thread.num.in_(candidates)).execute()
-
-    pics_num = 0
-    for pic in Picture.select().where(Picture.thread.in_(candidates)):
-        os.remove(pic.path)
-        pics_num += 1
-
-    logger.info('Removed %s pics' % pics_num)
-
     Picture.delete().where(Picture.thread.in_(candidates)).execute()
 
 

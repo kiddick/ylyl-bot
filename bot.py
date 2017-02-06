@@ -35,10 +35,10 @@ if __name__ == '__main__':
     while True:
         logger.info('Start aggregation')
         for pic in agregator:
-            logger.info('Sending %s' % pic.name)
+            logger.info('Sending %s' % pic.url)
             bot.sendPhoto(
                 chat_id=conf.chat_id,
-                photo=open(pic.path, 'rb'),
+                photo=pic.url,
                 caption=pic.caption
             )
             time.sleep(3)

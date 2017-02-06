@@ -8,8 +8,6 @@ from models import Thread as ThreadModel
 from models import Picture as PictureModel
 import models
 
-pics_base_dir = 'pics'
-
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -30,50 +28,10 @@ class Config(object):
 conf = Config()
 
 
-class Picture(object):
-
-    def __init__(self, chan_pic):
-        self.chan_pic = chan_pic
-        self.thread_num = chan_pic.url.split('/')[-2]
-        self.name = ''.join(chan_pic.url.split('/')[-2:])
-        self.path = os.path.join(pics_base_dir, self.name)
-        self.caption = ''
-
-    def save_to_db(self):
-        PictureModel.get_or_create(
-            name=self.name,
-            path=self.path,
-            thread=self.thread_num
-        )
-
-    def download(self, session=None):
-
-        logger.info('Downloading %s', self.chan_pic.url)
-        if session:
-            resp = session.get(self.chan_pic.url)
-        else:
-            resp = requests.get(self.chan_pic.url)
-
-        with open(self.path, 'wb') as output:
-            output.write(resp.content)
-
-        target_size = self.chan_pic.size
-        real_size = os.path.getsize(self.path) >> 10
-        logger.info('Size (target/real): %s / %s' % (target_size, real_size))
-
-        self.save_to_db()
-
-    def remove(self):
-        pass
-
-
 class Agregator(object):
 
     def __init__(self, board):
         self.board = board
-        self.thread_nums = []
-        if not os.path.isdir(conf.pics_base_dir):
-            os.makedirs(conf.pics_base_dir)
 
     def search(self):
         matched_threads = get_matched_threads(self.board)
@@ -83,22 +41,23 @@ class Agregator(object):
         for thread_num in matched_threads:
             ThreadModel.get_or_create(num=thread_num)
 
-        self.thread_nums = matched_threads
+        return matched_threads
 
     def __iter__(self):
-        self.search()
         session = requests.Session()
-        for thread in self.thread_nums:
+        for thread in self.search():
             for post in chan.Thread(self.board, num=thread).posts:
 
                 for pic in post.pictures:
-                    picture = Picture(pic)
 
-                    if PictureModel.check_existance(picture.name):
+                    if PictureModel.check_existance(pic.url):
                         continue
 
-                    picture.download(session)
-                    picture.caption = purify_message(post.message)
+                    picture = PictureModel.create(
+                        url=pic.url,
+                        thread=thread,
+                        caption=purify_message(post.message))
+
                     yield picture
 
 

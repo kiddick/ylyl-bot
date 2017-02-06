@@ -1,8 +1,8 @@
 board: 'b'
-pics_base_dir: 'pics'
 chat_id: 1337
 bot_token: 'tokentoken'
 sleep_interval: 200400
+sending_interval: 1
 search_tags:
   - 'засмеялся'
   - 'проиграл'

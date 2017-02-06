@@ -41,7 +41,7 @@ if __name__ == '__main__':
                 photo=pic.url,
                 caption=pic.caption
             )
-            time.sleep(3)
+            time.sleep(conf.sending_interval)
 
         logger.info('Finish aggregation')
         time.sleep(conf.sleep_interval)

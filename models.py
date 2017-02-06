@@ -24,6 +24,7 @@ class BaseModel(Model):
 class Thread(BaseModel):
 
     num = IntegerField(default=0)
+    board = CharField(default='b')
     start_date = DateTimeField(default=datetime.now)
 
 
@@ -38,8 +39,9 @@ class Picture(BaseModel):
         return len(Picture.select().where(Picture.url == url)) > 0
 
 
-def cleanup(thread_nums):
-    candidates = [t.num for t in Thread.select() if t.num not in thread_nums]
+def cleanup(board, thread_nums):
+    query = Thread.select(Thread.board == board)
+    candidates = [t.num for t in query if t.num not in thread_nums]
     if not candidates:
         return
 

@@ -63,10 +63,10 @@ class Agregator(object):
     def search(self):
         matched_threads = self.get_matched_threads()
 
-        models.cleanup(matched_threads)
+        models.cleanup(self.board, matched_threads)
 
         for thread_num in matched_threads:
-            ThreadModel.get_or_create(num=thread_num)
+            ThreadModel.get_or_create(num=thread_num, board=self.board)
 
         return matched_threads
 

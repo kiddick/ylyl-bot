@@ -36,12 +36,16 @@ def worker(entry):
 
         for pic in agregator:
             logger.info('%s: Sending %s' % (entry.name, pic.url))
-            bot.sendPhoto(
-                chat_id=entry.chat_id,
-                photo=pic.url,
-                caption=pic.caption
-            )
-            time.sleep(entry.sending_interval)
+            try:
+                bot.sendPhoto(
+                    chat_id=entry.chat_id,
+                    photo=pic.url,
+                    caption=pic.caption
+                )
+            except telegram.error.BadRequest:
+                logger.exception('%s went down' % entry.name)
+            else:
+                time.sleep(entry.sending_interval)
 
         logger.info('%s: Finish aggregation' % entry.name)
         time.sleep(entry.sleep_interval)

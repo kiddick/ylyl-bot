@@ -56,5 +56,9 @@ if __name__ == '__main__':
     # updater.start_polling()
     # updater.idle()
     with futures.ThreadPoolExecutor(max_workers=len(conf.entries)) as ex:
-        for entry in conf.entries:
-            ex.submit(worker, entry)
+
+        fs = [ex.submit(worker, entry) for entry in conf.entries]
+
+        for future in futures.as_completed(fs):
+            logger.error('Fatal error')
+            logger.error(future.result())

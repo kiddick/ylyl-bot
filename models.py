@@ -40,7 +40,7 @@ class Picture(BaseModel):
 
 
 def cleanup(board, thread_nums):
-    query = Thread.select(Thread.board == board)
+    query = Thread.select().where(Thread.board == board)
     candidates = [t.num for t in query if t.num not in thread_nums]
     if not candidates:
         return

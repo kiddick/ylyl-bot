@@ -37,10 +37,10 @@ def worker(entry):
         for pic in agregator:
             logger.info('%s: Sending %s' % (entry.name, pic.url))
             try:
-                bot.sendPhoto(
+                bot.send_message(
                     chat_id=entry.chat_id,
-                    photo=pic.url,
-                    caption=pic.caption
+                    text='{} [⁠]({})'.format(pic.caption, pic.url),
+                    parse_mode=ParseMode.MARKDOWN
                 )
             except telegram.error.BadRequest:
                 logger.exception('%s went down' % entry.name)
